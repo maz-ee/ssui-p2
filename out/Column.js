@@ -215,7 +215,7 @@ export class Column_debug extends Column {
     h = 13, // initial height
     vis = true // initial visibility status
     ) {
-        super(x, y, w, h, vis);
+        super(x, y, w, h, vis); // call parent class constructor
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     _drawSelfOnly(ctx) {
