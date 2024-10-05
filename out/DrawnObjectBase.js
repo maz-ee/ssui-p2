@@ -667,6 +667,12 @@ export class DrawnObjectBase {
     // limited to our bounds by clipping.
     _damageFromChild(child, xInChildCoords, yInChildCoords, wv, hv) {
         //=== YOUR CODE HERE ===
+        var _a;
+        // get local coords
+        const x = xInChildCoords + child.x;
+        const y = yInChildCoords + child.y;
+        // report up tree via parent
+        (_a = this._parent) === null || _a === void 0 ? void 0 : _a._damageFromChild(this, x, y, wv, hv);
     }
     get debugID() {
         return this._debugID;
