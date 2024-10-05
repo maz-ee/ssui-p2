@@ -644,7 +644,10 @@ export class DrawnObjectBase {
     // declaring extra damage. This method passes a damage report up the tree via
     // our parent.
     damageArea(xv, yv, wv, hv) {
+        var _a;
         //=== YOUR CODE HERE ===
+        // report damage from up tree to parent
+        (_a = this._parent) === null || _a === void 0 ? void 0 : _a._damageFromChild(this, xv, yv, wv, hv);
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Declare that the entire bounding box has been damaged.  This is the typical

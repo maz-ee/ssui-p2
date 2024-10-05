@@ -739,6 +739,8 @@ export class DrawnObjectBase {
   // our parent.
   public damageArea(xv: number, yv: number, wv: number, hv: number): void {
     //=== YOUR CODE HERE ===
+    // report damage from up tree to parent
+    this._parent?._damageFromChild(this, xv, yv, wv, hv);
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
