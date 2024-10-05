@@ -770,6 +770,13 @@ export class DrawnObjectBase {
     hv: number
   ): void {
     //=== YOUR CODE HERE ===
+
+    // get local coords
+    const x = xInChildCoords + child.x;
+    const y = yInChildCoords + child.y;
+
+    // report up tree via parent
+    this._parent?._damageFromChild(this, x, y, wv, hv);
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
