@@ -113,7 +113,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.x = v;
+      this._x = v;
+      this.damageAll();
     }
   }
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -129,7 +130,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.y = v;
+      this._y = v;
+      this.damageAll();
     }
   }
 
@@ -158,7 +160,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.w = v;
+      this._w = v;
+      this.damageAll();
     }
   }
 
@@ -175,7 +178,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.wConfig = v;
+      this._wConfig = v;
+      this.damageAll();
     }
   }
 
@@ -216,7 +220,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.h = v;
+      this._h = v;
+      this.damageAll();
     }
   }
 
@@ -233,7 +238,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.hConfig = v;
+      this._hConfig = v;
+      this.damageAll();
     }
   }
 
@@ -283,7 +289,8 @@ export class DrawnObjectBase {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this.visible = v;
+      this._visible = v;
+      this.damageAll();
     }
   }
 
@@ -520,6 +527,9 @@ export class DrawnObjectBase {
     cliph: number
   ) {
     //=== YOUR CODE HERE ===
+    ctx.beginPath();
+    ctx.rect(clipx, clipy, clipw, cliph);
+    ctx.clip();
   }
 
   // Utility routine to create a new rectangular path at our bounding box.
@@ -586,6 +596,14 @@ export class DrawnObjectBase {
     ctx.save();
 
     //=== YOUR CODE HERE ===
+
+    const child = this.children[childIndx];
+
+    //translation transforamtion
+    ctx.translate(child.x, child.y);
+
+    //reduce clipping region
+    this.applyClip(ctx, 0, 0, child.x, child.y); //(0,0) cause we translated to child pov
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

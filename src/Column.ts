@@ -250,7 +250,7 @@ export class Column_debug extends Column {
     h: number = 13, // initial height
     vis: boolean = true // initial visibility status
   ) {
-    super(x, y, w, h, vis);
+    super(x, y, w, h, vis); // call parent class constructor
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
