@@ -4,15 +4,15 @@ import { DrawnObjectBase } from "./DrawnObjectBase.js";
 // Class for the object that serves as the root/top of a drawing object tree.
 // This object is associated with a particular canvas and sets things
 // up so drawing occurs here.  This object also takes care of the various aspects of
-// the damage management, layout, and redraw processes that need to happen from the 
+// the damage management, layout, and redraw processes that need to happen from the
 // top of the tree.
 //
 // Note: We are not processing input using a normal input/damage/redraw cycle in this
 // project.  Therefore, this class provides some extra methods to deal with that.
-// Specifically, to cause layout and drawing after a change, the method 
+// Specifically, to cause layout and drawing after a change, the method
 // layoutAndDrawAll() should be called explicitly after a batch of damage has occured.
 // There are also special methods in this class to respond when asynchronous image
-// loading completes -- these cause a call to layoutAndDamage() in order to make 
+// loading completes -- these cause a call to layoutAndDamage() in order to make
 // those images appear correctly.
 //===================================================================
 export class TopObject extends DrawnObjectBase {
@@ -40,7 +40,7 @@ export class TopObject extends DrawnObjectBase {
         this._w = this._owningCanvas.width;
         this._h = this._owningCanvas.height;
         this._visible = true;
-        // cache the drawing context we've seen here for possible use in text measurement 
+        // cache the drawing context we've seen here for possible use in text measurement
         // within objects detached from the tree
         DrawnObjectBase._drawContextCache = this._canvasContext;
         // don't respond to asyncronous damage to start with
@@ -51,10 +51,18 @@ export class TopObject extends DrawnObjectBase {
         // initial draw
         this.damageAll();
     }
-    get owningCanvas() { return this._owningCanvas; }
-    get canvasContext() { return this._canvasContext; }
-    get damaged() { return this._damaged; }
-    get allowAsyncDamageRedraw() { return this._allowAsyncDamageRedraw; }
+    get owningCanvas() {
+        return this._owningCanvas;
+    }
+    get canvasContext() {
+        return this._canvasContext;
+    }
+    get damaged() {
+        return this._damaged;
+    }
+    get allowAsyncDamageRedraw() {
+        return this._allowAsyncDamageRedraw;
+    }
     set allowAsyncDamageRedraw(v) {
         // if there is no change bail out now
         if (v === this._allowAsyncDamageRedraw)
@@ -70,6 +78,8 @@ export class TopObject extends DrawnObjectBase {
     // For this object we clear the canvas behind the children that we draw
     _drawSelfOnly(ctx) {
         //=== YOUR CODE HERE ===
+        //clear canvas behind children
+        ctx.clearRect(0, 0, this._w, this._h);
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Override the _findTop() method so to returns this object as the top we have been
@@ -78,10 +88,10 @@ export class TopObject extends DrawnObjectBase {
         return this;
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // Method to explicitly invoke layout and redraw of the tree.  In a more typical 
-    // system this would be done after each round of input handling.  However, we are 
-    // not handling input in this (output-only) project, so this method is provided 
-    // instead.  Note that it is still necessary to declare any and all damaged 
+    // Method to explicitly invoke layout and redraw of the tree.  In a more typical
+    // system this would be done after each round of input handling.  However, we are
+    // not handling input in this (output-only) project, so this method is provided
+    // instead.  Note that it is still necessary to declare any and all damaged
     // areas through the normal means, prior to calling this method.
     layoutAndDrawAll() {
         // only do something if we have been damaged since the last redraw
@@ -89,9 +99,9 @@ export class TopObject extends DrawnObjectBase {
             // save the async damage setting so we can restore it
             const saveAsyncSetting = this.allowAsyncDamageRedraw;
             // do the layout first...
-            // we use a try-catch block here so an exception thrown during layout 
+            // we use a try-catch block here so an exception thrown during layout
             // doesn't shut down operation of the whole system (unless Err has been
-            // configured to do that).  However, in  that case we return without doing 
+            // configured to do that).  However, in  that case we return without doing
             // the drawing.
             try {
                 // don't do async damage response during layout or drawing
@@ -100,7 +110,7 @@ export class TopObject extends DrawnObjectBase {
             }
             catch (err) {
                 this.allowAsyncDamageRedraw = saveAsyncSetting;
-                Err.handle(err, '(During layout)');
+                Err.handle(err, "(During layout)");
                 return;
             }
             // layout might have declared damage, but won't be damaged after doing this
@@ -108,12 +118,12 @@ export class TopObject extends DrawnObjectBase {
             this._damaged = false;
             // we are going to change the drawing context so save it first
             this.canvasContext.save();
-            // we do the rest of this in a try-catch block so we can (typically) carry 
+            // we do the rest of this in a try-catch block so we can (typically) carry
             // on if there is an exception thrown somewhere in the draw process. A
-            // finally clause is used here to ensure that the restore() that matches 
+            // finally clause is used here to ensure that the restore() that matches
             // the above save() is always executed irrespective of exceptions.
             try {
-                // we don't have a parent to do the following for us, so we do it 
+                // we don't have a parent to do the following for us, so we do it
                 // ourselves...
                 // clip to our bounds
                 //=== YOUR CODE HERE ===
@@ -128,8 +138,8 @@ export class TopObject extends DrawnObjectBase {
                 //=== YOUR CODE HERE ===
             }
             catch (err) {
-                // catch any exception thrown and echo the message, but then 
-                // use Err to decide how we continue (by default we print a 
+                // catch any exception thrown and echo the message, but then
+                // use Err to decide how we continue (by default we print a
                 // message to console.log() and carry on).
                 Err.handle(err, "(During redraw)");
             }
@@ -139,10 +149,10 @@ export class TopObject extends DrawnObjectBase {
                 // restore the async damage setting that we set false for this code
                 this.allowAsyncDamageRedraw = saveAsyncSetting;
             }
-            // if damage has been declared at this point, that was done at some point 
-            // during drawing. drawing code should never change things that damage the 
-            // drawing becasue that leads to at least repeated, and more likely 
-            // infinitely repeated drawing.  so we provide a little warning if that's 
+            // if damage has been declared at this point, that was done at some point
+            // during drawing. drawing code should never change things that damage the
+            // drawing becasue that leads to at least repeated, and more likely
+            // infinitely repeated drawing.  so we provide a little warning if that's
             // happening, as this can be tricky to debug.
             if (this.damaged) {
                 console.log("Improper damage declaration during redraw detected " +
@@ -151,24 +161,24 @@ export class TopObject extends DrawnObjectBase {
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // Override the routine that declares damage for this object to record the 
+    // Override the routine that declares damage for this object to record the
     // damage instead of passing it up the tree (since there is no up  from here).
     damageArea(xv, yv, wv, hv) {
         //=== YOUR CODE HERE ===
     }
-    //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  
+    //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Special routine to declare that damage has occured due to asynchronous
     // image loads.  That damage will have been reported via the normal damage
     // mechanism.  If allowAsynchDamageRedraw is true, this routine will cause
-    // a call to layoutAndDrawAll() to force a display refresh that reflects the 
+    // a call to layoutAndDrawAll() to force a display refresh that reflects the
     // newly loaded image.  If allowAsyncDamageRedraw is false, nothing
     // will happen during this call, but this call will be invoked again once that
     // is set back to true
     //
-    // This is only needed because we are not in a normal event loop where the event 
-    // indicating the load had completed would get handled like any other input.  
-    // In this system we aren't necessarily still drawing things when the loads complete, 
-    // and this patches that up by doing an extra draw at the point an asynchronous 
+    // This is only needed because we are not in a normal event loop where the event
+    // indicating the load had completed would get handled like any other input.
+    // In this system we aren't necessarily still drawing things when the loads complete,
+    // and this patches that up by doing an extra draw at the point an asynchronous
     // load completes.
     asynchnousLoadDamage() {
         if (!this.allowAsyncDamageRedraw)
@@ -181,7 +191,7 @@ export class TopObject extends DrawnObjectBase {
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // This method does a two pass layout for the subtree rooted here.
     // It invokes two recursive traversals.  The first is a bottom up traversal which
-    // sets the size configuration of every object.  This is done with the 
+    // sets the size configuration of every object.  This is done with the
     // _sizingLaoutPass() method defined in the base class.  After size configurtions
     // have been established the second pass establishes the actual size and position
     // of each object.  This is done with the _completeLayout() method defined in the
@@ -191,22 +201,22 @@ export class TopObject extends DrawnObjectBase {
         this._completeLayout();
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // Utility method to pull out the canvas with the given id and extract 
+    // Utility method to pull out the canvas with the given id and extract
     // its drawing context (which has a reference back to that canvas in it)
     _getCanvasContext(canvasID) {
         // type guards to let us deal with HTML objects in a type safe fasion
         function isHTMLCanvasElement(canv) {
-            return (canv && (canv instanceof HTMLCanvasElement));
+            return canv && canv instanceof HTMLCanvasElement;
         }
         function isCanvasRenderingContext2D(ctx) {
-            return (ctx && (ctx instanceof CanvasRenderingContext2D));
+            return ctx && ctx instanceof CanvasRenderingContext2D;
         }
         // look up the canvas using the ID and validate the result
         const canv = document.getElementById(canvasID);
         if (!canv || !isHTMLCanvasElement(canv))
             throw new Error(`Can't find a canvas element with id:"${canvasID}"`);
         // get the drawing context object for the canvas and validate the result
-        const ctx = canv.getContext('2d');
+        const ctx = canv.getContext("2d");
         if (!ctx || !isCanvasRenderingContext2D(ctx))
             throw new Error(`Can't get rendering context for canvas element with id:"${canvasID}"`);
         return ctx;
