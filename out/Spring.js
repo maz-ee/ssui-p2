@@ -8,7 +8,7 @@ import { SizeConfig } from "./SizeConfig.js";
 //
 // These objects are fairly simple.  They produce no drawing (but a
 // Spring_debug subclass has been provided below to provide a debugging
-// display to make these normally invisible objects visible).  Their 
+// display to make these normally invisible objects visible).  Their
 // behavior is implemented by maintaining a fully stretchable size configuration
 // (min=0 natural=0 max=infinite).
 export class Spring extends DrawnObjectBase {
@@ -20,53 +20,73 @@ export class Spring extends DrawnObjectBase {
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Override w & h setters so they enforce elastic size
-    get w() { return super.w; }
+    get w() {
+        return super.w;
+    }
     set w(v) {
         //=== YOUR CODE HERE ===
+        if (v !== this._w) {
+            // don't forget to declare damage whenever something changes
+            // that could affect the display
+            //=== YOUR CODE HERE ===
+            super.w = v;
+        }
     }
-    get h() { return super.h; }
+    get h() {
+        return super.h;
+    }
     set h(v) {
         //=== YOUR CODE HERE ===
+        if (v !== this._h) {
+            // don't forget to declare damage whenever something changes
+            // that could affect the display
+            //=== YOUR CODE HERE ===
+            super.h = v;
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Override configuration setters to enforce elastic with zero natural size
-    get wConfig() { return super.wConfig; }
+    get wConfig() {
+        return super.wConfig;
+    }
     set wConfig(v) {
         super.wConfig = SizeConfig.elastic(0);
     }
-    get hConfig() { return super.hConfig; }
+    get hConfig() {
+        return super.hConfig;
+    }
     set hConfig(v) {
         super.hConfig = SizeConfig.elastic(0);
     }
 }
 //===================================================================
 export class Spring_debug extends Spring {
-    // we explicitly declare a size here so we know how to draw 
+    // we explicitly declare a size here so we know how to draw
     constructor(dir) {
         super();
         // we give this a bit of size so the drawing we are doing is not clipped away
         this._direction = dir;
-        if (dir === 'w')
+        if (dir === "w")
             this.h = this.hConfig.nat = 20;
-        if (dir === 'h')
+        if (dir === "h")
             this.w = this.wConfig.nat = 20;
     }
     _drawSelfOnly(ctx) {
         ctx.save();
         // box around the outside
-        ctx.strokeStyle = 'black';
+        ctx.strokeStyle = "black";
         ctx.strokeRect(0, 0, this.w, this.h);
         // spring-like lines (depending on direction)
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        if (this._direction === 'w') {
+        if (this._direction === "w") {
             ctx.lineTo(this.w / 3, this.h);
-            ctx.lineTo(2 * this.w / 3, 0);
+            ctx.lineTo((2 * this.w) / 3, 0);
             ctx.lineTo(this.w, this.h);
         }
         else {
             ctx.lineTo(this.w, this.h / 3);
-            ctx.lineTo(0, 2 * this.h / 3);
+            ctx.lineTo(0, (2 * this.h) / 3);
             ctx.lineTo(this.w, this.h);
         }
         ctx.stroke();

@@ -6,10 +6,10 @@ import { Spring } from "./Spring.js";
 // To use this class children in the row should be separated by Spring
 // and Strut objects.  Springs will stretch and compress, struts are fixed
 // length, neither produces any output (except in there *_debug versions,
-// which are useful for understanding how they work).  
-// 
-// This object must be given a width either by its parent during layout, 
-// or simply in advance when the parent isn't doing layout (e.g., when the 
+// which are useful for understanding how they work).
+//
+// This object must be given a width either by its parent during layout,
+// or simply in advance when the parent isn't doing layout (e.g., when the
 // parent is a Group, TopObject, DrawnObjectBase, etc.).  It's height will
 // automatically be set to a fixed size which matches the maximum natural size
 // among it's children.
@@ -20,24 +20,27 @@ import { Spring } from "./Spring.js";
 // (as controlled by the hJustification property of this object).
 //===================================================================
 export class Row extends Group {
-    constructor(x = 0, // x position in parent coordinate system 
-    y = 0, // y position in parent coordinate system 
+    constructor(x = 0, // x position in parent coordinate system
+    y = 0, // y position in parent coordinate system
     w = 42, // initial width
     h = 13, // initial height
-    vis = true) {
+    vis = true // initial visibility status
+    ) {
         super(x, y, w, h, vis);
         //-------------------------------------------------------------------
         // Properties
         //-------------------------------------------------------------------
         // How are objects positioned vertically along the height of the column
-        this._hJustification = 'top';
+        this._hJustification = "top";
         // initial sizing configuration is fixed in width and elastic in height
         this._wConfig = SizeConfig.fixed(w);
         this._hConfig = SizeConfig.elastic(h);
         // justification type for layout along the height of the column
-        this._hJustification = 'top';
+        this._hJustification = "top";
     }
-    get hJustification() { return this._hJustification; }
+    get hJustification() {
+        return this._hJustification;
+    }
     set hJustification(v) {
         if (v !== this._hJustification) {
             this._hJustification = v;
@@ -46,7 +49,9 @@ export class Row extends Group {
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Override w setter so it enforces fixed size
-    get w() { return super.w; }
+    get w() {
+        return super.w;
+    }
     set w(v) {
         if (v !== this._w) {
             // damage at old size
@@ -59,48 +64,61 @@ export class Row extends Group {
     }
     //-------------------------------------------------------------------
     // Methods
-    //-------------------------------------------------------------------  
-    // Determine the size configuration for this object assuming that the size 
-    // configuration of each child object is up to date (i.e., that _doChildSizing() 
-    // has just been called).  
+    //-------------------------------------------------------------------
+    // Determine the size configuration for this object assuming that the size
+    // configuration of each child object is up to date (i.e., that _doChildSizing()
+    // has just been called).
     //
-    // This sets our width configuration to be the sum of the children 
-    // (min is sum of mins, natual is sum of naturals, and max is sum of maxes). 
-    // Our height `configuration is set based on the (piecewise) maximum of our children 
-    // (min is the max of the child mins, natural is the max of the child naturals, and 
+    // This sets our width configuration to be the sum of the children
+    // (min is sum of mins, natual is sum of naturals, and max is sum of maxes).
+    // Our height `configuration is set based on the (piecewise) maximum of our children
+    // (min is the max of the child mins, natural is the max of the child naturals, and
     // max is the max of the child maxes)
     //
     // Our height min is set to hold all the children at their min size (the maximum
     // of the child mins).  Our natural size is set to hold all the children at their
-    // natural sizes (the maximum of child naturals).  Finally our max is set to the 
+    // natural sizes (the maximum of child naturals).  Finally our max is set to the
     // minimum of the child maximums.
     //
     // Our width is set to the width determined by stacking our children horizontally.
     _doLocalSizing() {
         //=== YOUR CODE HERE ===max};
+        if (this.children.length === 0)
+            return;
+        let child = this.children[0];
+        let w = { min: 0, nat: 0, max: 0 };
+        let h = { min: 0, nat: 0, max: 0 };
+        for (let i = 0; i < this.children.length; i++) {
+            child = this.children[i];
+            w = SizeConfig.add(w, child.wConfig);
+            h = SizeConfig.maximum(child.hConfig, h);
+        }
+        this._wConfig = w;
+        this._hConfig = h;
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // This method adjusts the width of the children to do horizontal springs and struts 
-    // layout within the row.  If there is excess space beyond the natural size of 
-    // the children, Spring objects are expanded (all by the same amount) to cause 
+    // This method adjusts the width of the children to do horizontal springs and struts
+    // layout within the row.  If there is excess space beyond the natural size of
+    // the children, Spring objects are expanded (all by the same amount) to cause
     // the layout to fill the height of the column.  Non-spring objects are currently
-    // not stretched (even if there are no springs).  If there is a shortfall in the 
-    // natural size space available we attempt to make up the shortfall by compressing 
-    // child objects. Springs are compressed to 0.  Then non-spring children are 
-    // compressed within the limits set by their configuration (specifically their 
+    // not stretched (even if there are no springs).  If there is a shortfall in the
+    // natural size space available we attempt to make up the shortfall by compressing
+    // child objects. Springs are compressed to 0.  Then non-spring children are
+    // compressed within the limits set by their configuration (specifically their
     // wConfig.min value). No child objects are compressed past their configured min
     // (if the shortfall can't be made up, later clipping will occur at the right).
     _adjustChildren() {
         // get measurements from our children
         const [natSum, availCompr, numSprings] = this._measureChildren();
-        // given space allocation from our parent, determine how much horizontal excess 
-        // we have in comparison to our children's natural sizes 
+        // given space allocation from our parent, determine how much horizontal excess
+        // we have in comparison to our children's natural sizes
         let excess = this.w - natSum;
         // handle positive excess and negative excess (AKA shortfall) as separate cases
         if (excess >= 0) {
             this._expandChildSprings(excess, numSprings);
         }
-        else { // negative excess (AKA shortfall) case
+        else {
+            // negative excess (AKA shortfall) case
             // zero out the size of all the springs
             for (let child of this.children) {
                 if (child instanceof Spring)
@@ -110,7 +128,7 @@ export class Row extends Group {
             // (we will end up clipping at the right as a fallback strategy)
             if (availCompr === 0)
                 return;
-            // don't try to make up more shortfall than we have available ompressability.  
+            // don't try to make up more shortfall than we have available ompressability.
             // (any remander will force a clip at the right)
             let shortfall = -excess;
             shortfall = Math.min(availCompr, shortfall);
@@ -119,7 +137,7 @@ export class Row extends Group {
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // Measure aspects of the children in preparation for adjusting sizes.  This 
+    // Measure aspects of the children in preparation for adjusting sizes.  This
     // returns an tuple  with the following computed values (all numbers):
     //   * natSum      The sum of natural sizes of the non-spring children
     //   * availCompr  The total compression available across the non-spring children
@@ -135,53 +153,72 @@ export class Row extends Group {
         let availCompr = 0;
         let numSprings = 0;
         //=== YOUR CODE HERE ===
+        for (let child of this.children) {
+            if (child instanceof Spring) {
+                numSprings++;
+            }
+            else {
+                natSum = natSum + child.wConfig.nat;
+                availCompr = availCompr + (child.wConfig.nat - child.wConfig.min);
+            }
+        }
         return [natSum, availCompr, numSprings];
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Expand  our child springs to add space in total equal to the given amount of
-    // excess space. Expansion space is allocated evenly among the springs. If there 
-    // are no child springs, this does nothing (which has the eventual effect of leaving 
+    // excess space. Expansion space is allocated evenly among the springs. If there
+    // are no child springs, this does nothing (which has the eventual effect of leaving
     // the space at the right of the row as a fallback strategy).
     _expandChildSprings(excess, numSprings) {
         //=== YOUR CODE HERE ===
+        if (numSprings === 0)
+            return;
+        let expspace = excess / numSprings;
+        for (let child of this.children) {
+            if (child instanceof Spring)
+                child.w = expspace;
+        }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Contract our child objects to make up the given amount of shortfall.  Springs
     // have a zero natural size (which is already assumed in calculating the shortfall),
-    // so we need to make up the shortfall among the other children by 
+    // so we need to make up the shortfall among the other children by
     // using space that they can compress (i.e., the difference between their min and
     // natural sizes).  Each child is compressed by a fraction of the total compression
     // that is equal to its fraction of the available compressability.
     _compressChildren(shortfall, // amount we need to compress overall
-    availCompr) {
-        // each child will be able to cover a fraction (possibly 0%) of the total 
-        // compressabilty across all the children. we calculate the fraction for 
-        // each child, then subtract that fraction of the total shortfall 
+    availCompr // total compressability across all children
+    ) {
+        // each child will be able to cover a fraction (possibly 0%) of the total
+        // compressabilty across all the children. we calculate the fraction for
+        // each child, then subtract that fraction of the total shortfall
         // from the natural height of that child, to get the assigned height.
         for (let child of this.children) {
             //=== YOUR CODE HERE ===
+            let frac = (child.w - child.minW) / availCompr;
+            child.w = child.w - frac / shortfall;
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-    // Do the local portion of the top down pass which sets the final 
-    // size and position of the immediate children of this object.  
-    // This assumes that the sizing configuration of all objects has already 
-    // been done in a prior pass, and that our parent has completed its layout and 
-    // set our size (or our size was otherwise set). 
+    // Do the local portion of the top down pass which sets the final
+    // size and position of the immediate children of this object.
+    // This assumes that the sizing configuration of all objects has already
+    // been done in a prior pass, and that our parent has completed its layout and
+    // set our size (or our size was otherwise set).
     //
-    // We use _adjustChidren() to resize the children to match the mandated 
+    // We use _adjustChidren() to resize the children to match the mandated
     // width of this row. Then we position the children stacked horizontally,
     // and justified vertically (based on hJustification).  Any horizontal space
-    // excess that _adjustChildren() couldn't allocate to springs will appear at 
+    // excess that _adjustChildren() couldn't allocate to springs will appear at
     // the left of the stack.  Any horzontal shortfall that couldn't be compressed
     // out of children will result in clipping at the left.
     _completeLocalLayout() {
         // if we have no children we can be done now (and avoid some edge cases)
         if (this.children.length === 0)
             return;
-        // set the width of all the children 
+        // set the width of all the children
         this._adjustChildren();
-        // set child heights to their natural heights 
+        // set child heights to their natural heights
         let hMax = 0;
         for (let child of this.children) {
             child.h = child.hConfig.nat;
@@ -198,22 +235,34 @@ export class Row extends Group {
         }
         // apply our justification setting for the vertical
         //=== YOUR CODE HERE ===
+        for (let child of this.children) {
+            if (this.hJustification === "top") {
+                child.y = 0;
+            }
+            else if (this.hJustification === "bottom") {
+                child.y = this.h - child.h;
+            }
+            else {
+                child.y = (this.h - child.h) / 2;
+            }
+        }
     }
 }
 //===================================================================
 export class Row_debug extends Row {
-    constructor(x = 0, // x position in parent coordinate system 
-    y = 0, // y position in parent coordinate system 
+    constructor(x = 0, // x position in parent coordinate system
+    y = 0, // y position in parent coordinate system
     w = 42, // initial width
     h = 13, // initial height
-    vis = true) {
+    vis = true // initial visibility status
+    ) {
         super(x, y, w, h, vis);
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     _drawSelfOnly(ctx) {
-        ctx.fillStyle = 'thistle';
+        ctx.fillStyle = "thistle";
         ctx.fillRect(0, 0, this.w, this.h);
-        ctx.strokeStyle = 'black';
+        ctx.strokeStyle = "black";
         ctx.strokeRect(0, 0, this.w, this.h);
         super._drawSelfOnly(ctx);
     }
@@ -222,8 +271,8 @@ export class Row_debug extends Row {
         if (this.visible) {
             this._drawSelfOnly(ctx);
             this._drawChildren(ctx);
-            // also draw an extra box on top of children 
-            ctx.strokeStyle = 'black';
+            // also draw an extra box on top of children
+            ctx.strokeStyle = "black";
             ctx.strokeRect(0, 0, this.w, this.h);
         }
     }
