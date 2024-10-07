@@ -109,12 +109,12 @@ export class DrawnObjectBase {
     return this._x;
   }
   public set x(v: number) {
-    if (v !== this.x) {
+    if (v !== this._x) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
       this._x = v;
-      this.damageAll();
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -126,12 +126,12 @@ export class DrawnObjectBase {
   }
   public set y(v: number) {
     //=== YOUR CODE HERE ===
-    if (v !== this.y) {
+    if (v !== this._y) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
       this._y = v;
-      this.damageAll();
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
 
@@ -156,12 +156,13 @@ export class DrawnObjectBase {
   }
   public set w(v: number) {
     //=== YOUR CODE HERE ===
-    if (v !== this.w) {
+    const vv = SizeConfig.withinConfig(v, this._wConfig);
+    if (vv !== this._w) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this._w = v;
-      this.damageAll();
+      this._w = vv;
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
 
@@ -174,12 +175,13 @@ export class DrawnObjectBase {
   }
   public set wConfig(v: SizeConfigLiteral) {
     //=== YOUR CODE HERE ===
-    if (v !== this.wConfig) {
+    const vv = SizeConfig.fitWithinConfig(v, this._wConfig);
+    if (!SizeConfig.eq(vv, this._wConfig)) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this._wConfig = v;
-      this.damageAll();
+      this._wConfig = vv;
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
 
@@ -216,12 +218,13 @@ export class DrawnObjectBase {
   }
   public set h(v: number) {
     //=== YOUR CODE HERE ===
-    if (v !== this.h) {
+    const vv = SizeConfig.withinConfig(v, this._hConfig);
+    if (vv !== this._h) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this._h = v;
-      this.damageAll();
+      this._h = vv;
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
 
@@ -234,12 +237,13 @@ export class DrawnObjectBase {
   }
   public set hConfig(v: SizeConfigLiteral) {
     //=== YOUR CODE HERE ===
-    if (v !== this.hConfig) {
+    const vv = SizeConfig.fitWithinConfig(v, this._hConfig);
+    if (!SizeConfig.eq(vv, this._hConfig)) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
-      this._hConfig = v;
-      this.damageAll();
+      this._hConfig = vv;
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
 
@@ -285,12 +289,12 @@ export class DrawnObjectBase {
   }
   public set visible(v: boolean) {
     //=== YOUR CODE HERE ===
-    if (v !== this.visible) {
+    if (v !== this._visible) {
       // don't forget to declare damage whenever something changes
       // that could affect the display
       //=== YOUR CODE HERE ===
       this._visible = v;
-      this.damageAll();
+      this.damageArea(this.x, this.y, this.w, this.h);
     }
   }
 
@@ -603,7 +607,7 @@ export class DrawnObjectBase {
     ctx.translate(child.x, child.y);
 
     //reduce clipping region
-    this.applyClip(ctx, 0, 0, child.x, child.y); //(0,0) cause we translated to child pov
+    this.applyClip(ctx, 0, 0, child.w, child.h); //(0,0) cause we translated to child pov
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -776,7 +780,7 @@ export class DrawnObjectBase {
     const y = yInChildCoords + child.y;
 
     // report up tree via parent
-    this._parent?._damageFromChild(this, x, y, wv, hv);
+    this.damageArea(x, y, wv, hv);
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .

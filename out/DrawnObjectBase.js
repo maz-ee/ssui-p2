@@ -137,12 +137,12 @@ export class DrawnObjectBase {
         return this._x;
     }
     set x(v) {
-        if (v !== this.x) {
+        if (v !== this._x) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
             this._x = v;
-            this.damageAll();
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     get y() {
@@ -150,12 +150,12 @@ export class DrawnObjectBase {
     }
     set y(v) {
         //=== YOUR CODE HERE ===
-        if (v !== this.y) {
+        if (v !== this._y) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
             this._y = v;
-            this.damageAll();
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -173,12 +173,13 @@ export class DrawnObjectBase {
     }
     set w(v) {
         //=== YOUR CODE HERE ===
-        if (v !== this.w) {
+        const vv = SizeConfig.withinConfig(v, this._wConfig);
+        if (vv !== this._w) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
-            this._w = v;
-            this.damageAll();
+            this._w = vv;
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     get wConfig() {
@@ -186,12 +187,13 @@ export class DrawnObjectBase {
     }
     set wConfig(v) {
         //=== YOUR CODE HERE ===
-        if (v !== this.wConfig) {
+        const vv = SizeConfig.fitWithinConfig(v, this._wConfig);
+        if (!SizeConfig.eq(vv, this._wConfig)) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
-            this._wConfig = v;
-            this.damageAll();
+            this._wConfig = vv;
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     get naturalW() {
@@ -221,12 +223,13 @@ export class DrawnObjectBase {
     }
     set h(v) {
         //=== YOUR CODE HERE ===
-        if (v !== this.h) {
+        const vv = SizeConfig.withinConfig(v, this._hConfig);
+        if (vv !== this._h) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
-            this._h = v;
-            this.damageAll();
+            this._h = vv;
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     get hConfig() {
@@ -234,12 +237,13 @@ export class DrawnObjectBase {
     }
     set hConfig(v) {
         //=== YOUR CODE HERE ===
-        if (v !== this.hConfig) {
+        const vv = SizeConfig.fitWithinConfig(v, this._hConfig);
+        if (!SizeConfig.eq(vv, this._hConfig)) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
-            this._hConfig = v;
-            this.damageAll();
+            this._hConfig = vv;
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     get naturalH() {
@@ -275,12 +279,12 @@ export class DrawnObjectBase {
     }
     set visible(v) {
         //=== YOUR CODE HERE ===
-        if (v !== this.visible) {
+        if (v !== this._visible) {
             // don't forget to declare damage whenever something changes
             // that could affect the display
             //=== YOUR CODE HERE ===
             this._visible = v;
-            this.damageAll();
+            this.damageArea(this.x, this.y, this.w, this.h);
         }
     }
     get parent() {
@@ -529,7 +533,7 @@ export class DrawnObjectBase {
         //translation transforamtion
         ctx.translate(child.x, child.y);
         //reduce clipping region
-        this.applyClip(ctx, 0, 0, child.x, child.y); //(0,0) cause we translated to child pov
+        this.applyClip(ctx, 0, 0, child.w, child.h); //(0,0) cause we translated to child pov
     }
     //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
     // Internal method to restore the given drawing context after drawing the
@@ -667,12 +671,11 @@ export class DrawnObjectBase {
     // limited to our bounds by clipping.
     _damageFromChild(child, xInChildCoords, yInChildCoords, wv, hv) {
         //=== YOUR CODE HERE ===
-        var _a;
         // get local coords
         const x = xInChildCoords + child.x;
         const y = yInChildCoords + child.y;
         // report up tree via parent
-        (_a = this._parent) === null || _a === void 0 ? void 0 : _a._damageFromChild(this, x, y, wv, hv);
+        this.damageArea(x, y, wv, hv);
     }
     get debugID() {
         return this._debugID;

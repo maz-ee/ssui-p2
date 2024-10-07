@@ -108,7 +108,9 @@ export class TopObject extends DrawnObjectBase {
     //=== YOUR CODE HERE ===
 
     //clear canvas behind children
-    ctx.clearRect(0, 0, this._w, this._h);
+    ctx.clearRect(this.x, this.y, this.w, this.h);
+    ctx.rect(this.x, this.y, this.w, this.h);
+    ctx.stroke();
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -167,21 +169,18 @@ export class TopObject extends DrawnObjectBase {
         // clip to our bounds
 
         //=== YOUR CODE HERE ===
-        this.canvasContext.beginPath();
-        this.canvasContext.rect(this._x, this._y, this._w, this._h);
-        this.canvasContext.clip();
+        this.applyClip(this.canvasContext, this.x, this.y, this.w, this.h);
 
         // within our bounds clip to just the damaged region
 
         //=== YOUR CODE HERE ===
-        this.canvasContext.beginPath();
-        this.canvasContext.rect(
+        this.applyClip(
+          this.canvasContext,
           this._damageRectX,
           this._damageRectY,
           this._damageRectW,
           this._damageRectH
         );
-        this.canvasContext.clip();
 
         // after this we will no longer be damaged, so reset our damage tracking
         // rectangle to be our whole bounds
@@ -192,8 +191,7 @@ export class TopObject extends DrawnObjectBase {
         // do the actual drawing from here down the tree
 
         //=== YOUR CODE HERE ===
-        this._drawSelfOnly(this.canvasContext);
-        this._drawChildren(this.canvasContext);
+        this.draw(this.canvasContext);
       } catch (err) {
         // catch any exception thrown and echo the message, but then
         // use Err to decide how we continue (by default we print a
@@ -232,6 +230,20 @@ export class TopObject extends DrawnObjectBase {
     hv: number
   ): void {
     //=== YOUR CODE HERE ===
+    if (this.damaged) {
+      this._damageRectX = Math.min(this.x, xv);
+      this._damageRectY = Math.min(this.y, yv);
+      this._damageRectW = Math.max(this.w, wv);
+      this._damageRectH = Math.max(this.h, hv);
+    } else {
+      this._damageRectX = xv;
+      this._damageRectY = yv;
+      this._damageRectW = wv;
+      this._damageRectH = hv;
+
+      this._damaged = true;
+    }
+    // this.damageAll();
   }
 
   //. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
