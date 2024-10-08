@@ -142,7 +142,6 @@ export class TextObject extends DrawnObjectBase {
 
   // Recalculate the size of this object based on the size of the text
   protected _recalcSize(ctx?: DrawContext): void {
-    if (!ctx) return;
     //=== YOUR CODE HERE ===
     const dims = this._measureText(this.text, this.font, ctx);
     this._w = dims.w + this.padding.w + this.padding.w;
